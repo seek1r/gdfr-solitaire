@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GDFR Solitaire</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Fredoka:wght@600&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index-z_lJl4Qh.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-D74tmmGA.css">
+  </head>
+  <body>
+    <div id="app">
+
+      <!-- ===================== MAIN MENU ===================== -->
+      <section id="menu-screen" class="screen">
+        <div class="menu-panel">
+          <h1 class="menu-title">GDFR Solitaire</h1>
+
+          <div class="menu-option-group">
+            <h2>Deal Size</h2>
+            <div class="option-buttons" data-option="dealSize">
+              <button type="button" data-value="5">5 Cards</button>
+              <button type="button" data-value="6">6 Cards</button>
+              <button type="button" data-value="7" class="selected">7 Cards</button>
+            </div>
+          </div>
+
+          <div class="menu-option-group">
+            <h2>Mode</h2>
+            <div class="option-buttons" data-option="mode">
+              <button type="button" data-value="normal">Normal</button>
+              <button type="button" data-value="challenge" class="selected">Challenge</button>
+            </div>
+            <p id="mode-description" class="option-description"></p>
+          </div>
+
+          <button id="start-game-btn" type="button" class="primary-btn">Start Game</button>
+        </div>
+      </section>
+
+      <!-- ===================== GAME ===================== -->
+      <section id="game-screen" class="screen hidden">
+        <header id="game-controls">
+          <button id="menu-btn" type="button">Menu</button>
+          <div class="controls-spacer"></div>
+          <button id="undo-btn" type="button" disabled>Undo</button>
+          <button id="new-game-btn" type="button">New Game</button>
+        </header>
+
+        <main id="game-board">
+          <section id="field" class="board-section">
+            <h2 class="visually-hidden">Field</h2>
+            <div id="field-row" class="field-area card-row"></div>
+          </section>
+
+          <section id="player-hand-container" class="board-section">
+            <h2 class="visually-hidden">Hand</h2>
+            <div class="hand-area">
+              <div id="hand-row-1" class="card-row"></div>
+              <div id="hand-row-2" class="card-row"></div>
+            </div>
+          </section>
+        </main>
+      </section>
+
+      <!-- ===================== CONFIRM POPUP ===================== -->
+      <div id="confirm-modal" class="modal-overlay hidden">
+        <div class="modal-panel">
+          <p id="confirm-message"></p>
+          <div class="modal-actions">
+            <button id="confirm-cancel-btn" type="button">Cancel</button>
+            <button id="confirm-ok-btn" type="button" class="danger-btn">Confirm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== WIN POPUP ===================== -->
+      <div id="win-modal" class="modal-overlay hidden">
+        <div class="modal-panel">
+          <h2 id="win-message"></h2>
+          <div class="modal-actions">
+            <button id="win-play-again-btn" type="button" class="primary-btn">Play Again</button>
+            <button id="win-return-menu-btn" type="button">Return to Menu</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>
