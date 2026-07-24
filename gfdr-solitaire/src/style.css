@@ -1,0 +1,549 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color-scheme: dark;
+  background-color: #1e252b;
+  color: #ffffff;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  overflow: hidden; /* the layout is sized to fit; #app scrolls as a fallback */
+}
+
+#app {
+  width: 95vw;          /* Take up most of the screen width */
+  max-width: 1400px;    /* Limit max width on ultrawide monitors */
+  height: 100vh;
+  margin: 0 auto;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+button {
+  padding: 8px 16px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  background-color: #3b82f6;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #2563eb;
+}
+
+button:disabled {
+  background-color: #3a4149;
+  color: #7a848d;
+  cursor: not-allowed;
+}
+
+button.danger-btn {
+  background-color: #dc2626;
+}
+button.danger-btn:hover {
+  background-color: #b91c1c;
+}
+
+button.primary-btn {
+  background-color: #16a34a;
+}
+button.primary-btn:hover {
+  background-color: #15803d;
+}
+
+/* ==========================================
+   MAIN MENU
+   ========================================== */
+
+#menu-screen {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-panel {
+  width: min(90vw, 480px);
+  background-color: #2a323d;
+  border-radius: 16px;
+  padding: 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.menu-title {
+  margin: 0 0 8px;
+  text-align: center;
+  font-family: 'Playfair Display', sans-serif;
+  font-size: 2rem;
+}
+
+.menu-option-group h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.option-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.option-buttons button {
+  flex: 1 1 auto;
+  background-color: #3a4149;
+}
+
+.option-buttons button.selected {
+  background-color: #3b82f6;
+}
+
+.option-description {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  min-height: 1.2em;
+}
+
+#start-game-btn {
+  padding: 12px 16px;
+  font-size: 1.05rem;
+}
+
+/* ==========================================
+   GAME SCREEN / CONTROLS
+   ========================================== */
+
+#game-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#game-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex: 0 0 auto;
+}
+
+.controls-spacer {
+  flex: 1 1 auto;
+}
+
+/* Game Board */
+#game-board {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.board-section {
+  background-color: #2a323d;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.field-area {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* The hand area holds both hand rows (goblin + fairy) as one visual block,
+   with no separator between them, so the two logical rows read as a single
+   hand rather than two stacked containers. */
+.hand-area {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 6px 10px;
+  box-sizing: border-box;
+  overflow-x: visible;
+  gap: 0 !important; /* Managed purely via JS inline margins */
+}
+
+.hand-area .card-row {
+  padding: 0 10px;
+}
+
+/* Card base styling */
+:root {
+  /* Three rows of cards (field, hand-goblin, hand-fairy) need to fit in the
+     viewport with no page scroll. Sizing cards off viewport *height* (rather
+     than a fixed px width) keeps every card uniform while letting the whole
+     set shrink gracefully on shorter screens. */
+  --card-h: clamp(150px, 24vh, 263px);
+}
+
+.card {
+  height: var(--card-h);
+  width: auto;
+  aspect-ratio: 517 / 800;
+  flex-shrink: 0;
+  position: relative;
+  cursor: pointer;
+  container-type: inline-size;
+  margin-right: 0px; /* Default margin */
+
+  /* Smooth transition when toggling overlap */
+  transition: margin-right 0.2s ease, transform 0.2s ease;
+}
+
+/* HOVER BEHAVIOR: Lift card and bring to front */
+.card:hover {
+  z-index: 100 !important;      /* Bring above all neighbor cards */
+  transform: translateY(-20px) scale(1.08); /* Lift up slightly */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d;
+}
+
+.card.show-fairy .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  box-sizing: border-box;
+
+  /* Outer card corners rounded to match 16px inner corner on 517px base (16 / 517 = ~3.1cqw) */
+  border-radius: 3.1cqw;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.face-goblin {
+  /* Outer background fill outside the border */
+  background-color: #434039;
+  transform: rotateY(0deg);
+}
+
+.face-goblin .card-border-frame {
+  /* 20px offset on 517px width = 3.868cqw */
+  position: absolute;
+  top: 3.868%;
+  left: 3.868%;
+  right: 3.868%;
+  bottom: 2.5%; /* 20px offset on 800px height */
+
+  /* 3px border scaled relative to width */
+  border: 0.58cqw solid #000000;
+  border-radius: 3.1cqw;
+  box-sizing: border-box;
+
+  /* Background image/asset fills inside the border frame */
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.face-goblin .card-title {
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  color: #ffffff;
+  /* Thin black outline for Side X */
+  -webkit-text-stroke: 0.2cqw #000000;
+  text-shadow:
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000;
+}
+
+.face-fairy {
+  /* Outer background fill outside the border */
+  background-color: #ffffff;
+  transform: rotateY(180deg);
+}
+
+.face-fairy .card-border-frame {
+  position: absolute;
+  top: 3.868%;
+  left: 3.868%;
+  right: 3.868%;
+  bottom: 2.5%;
+
+  border: 0.58cqw solid #000000;
+  border-radius: 3.1cqw;
+  box-sizing: border-box;
+
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.face-fairy .card-title {
+  font-family: 'Playfair Display', serif;
+  color: #000000;
+  -webkit-text-stroke: 0;
+
+    /* Layered soft white backdrop glow */
+    text-shadow:
+      0 0 2px #ffffff,
+      0 0 4px #ffffff,
+      0 0 6px #ffffff,
+      0 0 8px rgba(255, 255, 255, 0.9);
+}
+
+.card-suit-icon {
+  position: absolute;
+  left: 66.538%;  /* 344 / 517 */
+  top: 78.375%;   /* 627 / 800 */
+  width: 28.24%;  /* 146 / 517 */
+  height: 18.25%; /* 146 / 800 */
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.card-title-container {
+  position: absolute;
+  left: 4.45%;    /* Inner border offset */
+  width: 61%;     /* Fills space up to the left edge of the suit icon */
+  top: 78.375%;   /* Aligned vertically with suit icon */
+  height: 18.25%;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.card-title {
+  width: 100%;
+  white-space: nowrap;
+
+  /* Increased font size for better readability */
+  font-size: 9.5cqw;
+  line-height: 1;
+  margin: 0;
+  padding-left: 1cqw;
+
+  /* Scale text down seamlessly if it exceeds container width */
+  display: inline-block;
+  transform-origin: left center;
+}
+
+/* ==========================================
+   CROWN CARD BORDER GRID (3x5)
+   ========================================== */
+
+/* 3x5 Crown Container covering the inner border frame */
+.star-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+  /* 3 columns matching 3x5 layout */
+  grid-template-columns: repeat(3, 15.86%); /* ~82px / 517px base */
+  grid-template-rows: repeat(5, 10.25%);    /* ~82px / 800px base */
+  justify-content: space-between;
+  align-content: space-between;
+
+  padding: 1.5cqw;
+  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Base Crown Icon Styling */
+.star-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Explicit Grid Slot Assignment for 12 Crowns */
+.star-1  { grid-column: 1; grid-row: 1; }
+.star-2  { grid-column: 2; grid-row: 1; }
+.star-3  { grid-column: 3; grid-row: 1; }
+
+.star-4  { grid-column: 1; grid-row: 2; }
+.star-5  { grid-column: 3; grid-row: 2; }
+
+.star-6  { grid-column: 1; grid-row: 3; }
+.star-7  { grid-column: 3; grid-row: 3; }
+
+.star-8  { grid-column: 1; grid-row: 4; }
+.star-9  { grid-column: 3; grid-row: 4; }
+
+.star-10 { grid-column: 1; grid-row: 5; }
+.star-11 { grid-column: 2; grid-row: 5; }
+.star-12 { grid-column: 3; grid-row: 5; }
+
+
+/* ==========================================
+   POSITION OVERRIDES FOR CROWN CARDS
+   ========================================== */
+
+/* Move suit icon up to Row 4 on Crown Cards */
+.card-border-frame.is-star .card-suit-icon {
+  top: 73%;        /* Lowered from 61.5% down closer to bottom row */
+  left: 66.538%;
+  z-index: 5;
+}
+
+/* Move title container up to Row 4 on Crown Cards */
+.card-border-frame.is-star .card-title-container {
+  top: 75%;        /* Aligned with suit icon */
+  z-index: 5;
+}
+
+@keyframes pulseGlowGoblin {
+  0%, 100% {
+    /* Base dark border & subtle box-shadow glow */
+    background-color: rgb(67, 64, 57);
+    box-shadow: inset 0 0 10px rgba(67, 64, 57, 0.5);
+  }
+  50% {
+    /* Dark turquoise / muddy green pulse */
+    background-color: #0e2b1f;
+    box-shadow: inset 0 0 18px rgba(4, 20, 14, 0.5), 0 0 15px rgba(4, 20, 14, 0.5)
+  }
+}
+@keyframes pulseGlowFairy {
+	0%, 100% {
+    background-color: #ffffff;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    /* Light golden yellow pulse */
+    background-color: #fff1a8;
+    box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.3), 0 0 15px rgba(255, 215, 0, 0.3);
+  }
+}
+/* Apply pulse animation ONLY when crown card is in the hand area */
+.hand-area .card-face.face-goblin:has(.card-border-frame.is-star) {
+  animation: pulseGlowGoblin 3s infinite ease-in-out;
+}
+
+.hand-area .card-face.face-fairy:has(.card-border-frame.is-star) {
+  animation: pulseGlowFairy 3s infinite ease-in-out;
+}
+
+.card-placeholder {
+  height: var(--card-h);
+  width: auto;
+  aspect-ratio: 517 / 800;
+  flex-shrink: 0;
+  box-sizing: border-box;
+
+  /* Semi-transparent dashed outline to show the reserved slot */
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+/* FLIP Animation Helper Class */
+.card.is-animating {
+  transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+  z-index: 200 !important; /* Keep animating cards above idle cards */
+}
+
+/* ==========================================
+   MODALS (confirm / win)
+   ========================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-panel {
+  background-color: #2a323d;
+  border-radius: 16px;
+  padding: 28px;
+  width: min(90vw, 420px);
+  box-sizing: border-box;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.modal-panel p,
+.modal-panel h2 {
+  margin: 0 0 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-actions button {
+  flex: 1 1 0;
+}
